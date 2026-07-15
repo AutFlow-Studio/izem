@@ -19,6 +19,7 @@ import searchRouter from "./search";
 import dashboardRouter from "./dashboard";
 import reportsRouter from "./reports";
 import adminRouter from "./admin";
+import notificationsRouter from "./notifications";
 
 const router: IRouter = Router();
 
@@ -48,5 +49,6 @@ router.use(calendarRouter);
 router.use(searchRouter);
 router.use(reportsRouter);
 router.use(adminRouter);
+router.use(notificationsRouter);
 
 export default router;

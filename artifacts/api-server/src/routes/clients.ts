@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, ilike, and, sql } from "drizzle-orm";
 import { db, clientsTable, projectsTable, paymentsTable, activityTable } from "@workspace/db";
+import { createNotification } from "../lib/createNotification";
 import {
   ListClientsQueryParams,
   CreateClientBody,
@@ -71,6 +72,16 @@ router.post("/clients", async (req, res): Promise<void> => {
     entityId: client.id,
     description: `Client "${client.companyName}" created`,
     clientId: client.id,
+  });
+
+  // Notification
+  void createNotification({
+    type: "client_created",
+    title: "New client added",
+    message: `"${client.companyName}" has been added as a client.`,
+    entityType: "client",
+    entityId: client.id,
+    href: `/clients/${client.id}`,
   });
 
   res.status(201).json({

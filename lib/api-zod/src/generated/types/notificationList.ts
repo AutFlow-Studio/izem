@@ -5,10 +5,9 @@
  * Agency Owner Operating System API
  * OpenAPI spec version: 0.1.0
  */
+import type { Notification } from './notification';
 
-export interface MonthlyRevenue {
-  month: string;
-  monthLabel: string;
-  revenue: number;
-  collected: number;
+export interface NotificationList {
+  notifications: Notification[];
+  unreadCount: number;
 }

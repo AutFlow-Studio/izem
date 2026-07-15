@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, documentsTable, activityTable, clientsTable } from "@workspace/db";
+import { createNotification } from "../lib/createNotification";
 import {
   ListDocumentsParams,
   CreateDocumentParams,
@@ -76,6 +77,16 @@ router.post("/clients/:clientId/documents", async (req, res): Promise<void> => {
     entityId: doc.id,
     description: `Document "${doc.title}" added`,
     clientId: doc.clientId,
+  });
+
+  // Notification
+  void createNotification({
+    type: "document_uploaded",
+    title: "Document uploaded",
+    message: `"${doc.title}" uploaded${client ? ` for ${client.companyName}` : ""}.`,
+    entityType: "document",
+    entityId: doc.id,
+    href: `/documents`,
   });
 
   res.status(201).json(mapDocument(doc));

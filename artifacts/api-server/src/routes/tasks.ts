@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, and, sql, inArray } from "drizzle-orm";
 import { db, tasksTable, clientsTable, projectsTable, activityTable } from "@workspace/db";
+import { createNotification } from "../lib/createNotification";
 import {
   ListTasksQueryParams,
   CreateTaskBody,
@@ -88,6 +89,16 @@ router.post("/tasks", async (req, res): Promise<void> => {
     clientId: task.clientId ?? null,
   });
 
+  // Notification
+  void createNotification({
+    type: "task_created",
+    title: "Task created",
+    message: `Task "${task.title}" (${task.priority} priority) has been added.`,
+    entityType: "task",
+    entityId: task.id,
+    href: `/tasks`,
+  });
+
   res.status(201).json(await mapTask(task));
 });
 
@@ -113,6 +124,18 @@ router.patch("/tasks/:id", async (req, res): Promise<void> => {
   if (!task) {
     res.status(404).json({ error: "Task not found" });
     return;
+  }
+
+  // Notification when a task is completed
+  if (parsed.data.status === "done") {
+    void createNotification({
+      type: "task_completed",
+      title: "Task completed",
+      message: `Task "${task.title}" has been marked as done.`,
+      entityType: "task",
+      entityId: task.id,
+      href: `/tasks`,
+    });
   }
 
   res.json(await mapTask(task));

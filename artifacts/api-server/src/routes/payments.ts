@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, and, sql } from "drizzle-orm";
 import { db, paymentsTable, clientsTable, activityTable } from "@workspace/db";
+import { createNotification } from "../lib/createNotification";
 import {
   ListPaymentsQueryParams,
   CreatePaymentBody,
@@ -69,8 +70,18 @@ router.post("/payments", async (req, res): Promise<void> => {
     type: "payment_added",
     entityType: "payment",
     entityId: payment.id,
-    description: `Invoice ${payment.invoiceNumber} added ($${payment.amount})`,
+    description: `Invoice ${payment.invoiceNumber} added (${payment.amount})`,
     clientId: payment.clientId,
+  });
+
+  // Notification
+  void createNotification({
+    type: "invoice_created",
+    title: "Invoice created",
+    message: `Invoice ${payment.invoiceNumber} for ${Number(payment.amount).toLocaleString()} created${client ? ` (${client.companyName})` : ""}.`,
+    entityType: "payment",
+    entityId: payment.id,
+    href: `/payments`,
   });
 
   res.status(201).json(mapPayment(payment, client?.companyName ?? null));
@@ -131,8 +142,17 @@ router.patch("/payments/:id", async (req, res): Promise<void> => {
       type: "payment_received",
       entityType: "payment",
       entityId: payment.id,
-      description: `Payment received for invoice ${payment.invoiceNumber} ($${payment.amount})`,
+      description: `Payment received for invoice ${payment.invoiceNumber} (${payment.amount})`,
       clientId: payment.clientId,
+    });
+
+    void createNotification({
+      type: "invoice_paid",
+      title: "Invoice paid",
+      message: `Invoice ${payment.invoiceNumber} (${Number(payment.amount).toLocaleString()}) has been marked as paid.`,
+      entityType: "payment",
+      entityId: payment.id,
+      href: `/payments`,
     });
   }
 

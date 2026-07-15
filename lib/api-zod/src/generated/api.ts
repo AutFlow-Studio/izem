@@ -1288,6 +1288,71 @@ export const GetRevenueReportResponse = zod.object({
 
 
 /**
+ * @summary List notifications with unread count
+ */
+export const ListNotificationsResponse = zod.object({
+  "notifications": zod.array(zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "title": zod.string(),
+  "message": zod.string(),
+  "entityType": zod.string(),
+  "entityId": zod.number().nullish(),
+  "href": zod.string().nullish(),
+  "isRead": zod.boolean(),
+  "createdAt": zod.string()
+})),
+  "unreadCount": zod.number()
+})
+
+
+/**
+ * @summary Get unread notification count
+ */
+export const GetNotificationUnreadCountResponse = zod.object({
+  "count": zod.number()
+})
+
+
+/**
+ * @summary Mark all notifications as read
+ */
+export const MarkAllNotificationsReadResponse = zod.object({
+  "updated": zod.number()
+})
+
+
+/**
+ * @summary Mark a single notification as read
+ */
+export const MarkNotificationReadParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const MarkNotificationReadResponse = zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "title": zod.string(),
+  "message": zod.string(),
+  "entityType": zod.string(),
+  "entityId": zod.number().nullish(),
+  "href": zod.string().nullish(),
+  "isRead": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a notification
+ */
+export const DeleteNotificationParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteNotificationResponse = zod.void()
+
+
+/**
  * @summary Permanently delete all data across every table (irreversible demo reset)
  */
 export const ResetDemoDataResponse = zod.object({

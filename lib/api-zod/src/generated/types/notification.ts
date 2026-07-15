@@ -6,16 +6,16 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface ActivityItem {
+export interface Notification {
   id: number;
   type: string;
-  entityType?: string;
+  title: string;
+  message: string;
+  entityType: string;
   /** @nullable */
   entityId?: number | null;
-  description: string;
   /** @nullable */
-  clientId?: number | null;
-  /** @nullable */
-  clientName?: string | null;
+  href?: string | null;
+  isRead: boolean;
   createdAt: string;
 }

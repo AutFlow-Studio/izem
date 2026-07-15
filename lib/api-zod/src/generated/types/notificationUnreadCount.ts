@@ -6,10 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface TimelineEvent {
-  id: number;
-  clientId: number;
-  type: string;
-  description: string;
-  occurredAt: string;
+export interface NotificationUnreadCount {
+  count: number;
 }

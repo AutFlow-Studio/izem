@@ -6,6 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GlobalSearchParams = {
-q: string;
-};
+export interface NotificationMarkAllReadResult {
+  updated: number;
+}

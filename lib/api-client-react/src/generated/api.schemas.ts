@@ -780,6 +780,33 @@ export interface RevenueReport {
   byMonth: MonthlyRevenue[];
 }
 
+export interface Notification {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  entityType: string;
+  /** @nullable */
+  entityId?: number | null;
+  /** @nullable */
+  href?: string | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface NotificationList {
+  notifications: Notification[];
+  unreadCount: number;
+}
+
+export interface NotificationUnreadCount {
+  count: number;
+}
+
+export interface NotificationMarkAllReadResult {
+  updated: number;
+}
+
 export type ListClientsParams = {
 status?: string;
 search?: string;

@@ -15,17 +15,30 @@ import {
   Bell,
   User,
   LogOut,
-  AlertCircle,
-  DollarSign,
-  Clock,
   Menu,
   X,
+  UserPlus,
+  FolderPlus,
+  RefreshCw,
+  Receipt,
+  CheckCircle2,
+  Upload,
+  ListTodo,
+  CheckCheck,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useGetDashboard } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useListNotifications,
+  getListNotificationsQueryKey,
+  useMarkNotificationRead,
+  useMarkAllNotificationsRead,
+  useDeleteNotification,
+} from "@workspace/api-client-react";
 import { useAuth } from "@/components/auth-provider";
 import { useAgencyProfile } from "@/components/agency-profile-provider";
-import { format } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,19 +50,20 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
-const SEEN_NOTIFICATIONS_KEY = "autflow-studio-seen-notifications";
+const NOTIF_ICON_MAP: Record<string, React.ElementType> = {
+  client_created: UserPlus,
+  project_created: FolderPlus,
+  project_status_changed: RefreshCw,
+  invoice_created: Receipt,
+  invoice_paid: CheckCircle2,
+  document_uploaded: Upload,
+  task_created: ListTodo,
+  task_completed: CheckCheck,
+};
 
-function loadSeenNotificationIds(): Set<string> {
-  try {
-    const raw = localStorage.getItem(SEEN_NOTIFICATIONS_KEY);
-    return raw ? new Set(JSON.parse(raw)) : new Set();
-  } catch {
-    return new Set();
-  }
-}
-
-function saveSeenNotificationIds(ids: Set<string>) {
-  localStorage.setItem(SEEN_NOTIFICATIONS_KEY, JSON.stringify(Array.from(ids)));
+function NotifIcon({ type }: { type: string }) {
+  const Icon = NOTIF_ICON_MAP[type] ?? Bell;
+  return <Icon size={14} className="shrink-0 mt-0.5 text-muted-foreground" />;
 }
 
 const NAV_ITEMS = [
@@ -68,9 +82,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const { data: stats } = useGetDashboard();
   const { user, logout } = useAuth();
   const { profile: agencyProfile } = useAgencyProfile();
+  const queryClient = useQueryClient();
+
   const initials = (user?.name ?? "")
     .split(/\s+/)
     .filter(Boolean)
@@ -78,48 +93,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
     .slice(0, 2)
     .join("") || "?";
 
-  const notifications = [
-    ...(stats?.projectsAtRisk?.slice(0, 3).map((project) => ({
-      id: `risk-${project.id}`,
-      icon: AlertCircle,
-      iconClass: "text-destructive",
-      title: `${project.name} is at risk`,
-      description: project.clientName,
-      href: `/projects/${project.id}`,
-    })) || []),
-    ...(stats?.upcomingDeadlines?.slice(0, 3).map((project) => ({
-      id: `deadline-${project.id}`,
-      icon: Clock,
-      iconClass: "text-amber-500",
-      title: `Deadline: ${project.name}`,
-      description: project.deadline ? format(new Date(project.deadline), "MMM d, yyyy") : "No deadline",
-      href: `/projects/${project.id}`,
-    })) || []),
-    ...(stats && stats.invoicesAwaitingPayment > 0
-      ? [{
-          id: "unpaid-invoices",
-          icon: DollarSign,
-          iconClass: "text-emerald-500",
-          title: `${stats.invoicesAwaitingPayment} unpaid invoice${stats.invoicesAwaitingPayment === 1 ? "" : "s"}`,
-          description: `${stats.outstandingPayments.toLocaleString()} outstanding`,
-          href: "/payments",
-        }]
-      : []),
-  ];
+  // ── Real notification data from the API ───────────────────────────────────
+  const { data: notifData } = useListNotifications({
+    query: { queryKey: getListNotificationsQueryKey(), refetchInterval: 30_000 },
+  });
+  const notifications = notifData?.notifications ?? [];
+  const unreadCount = notifData?.unreadCount ?? 0;
 
-  // Track which notification IDs the owner has already viewed, so the
-  // purple unread dot only reappears when a genuinely new notification
-  // shows up -- not every time the dashboard stats refetch.
-  const [seenIds, setSeenIds] = useState<Set<string>>(() => loadSeenNotificationIds());
-  const hasUnread = notifications.some((n) => !seenIds.has(n.id));
+  const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
+  const deleteNotif = useDeleteNotification();
 
-  function handleNotificationsOpenChange(open: boolean) {
-    if (open) {
-      const next = new Set(seenIds);
-      for (const n of notifications) next.add(n.id);
-      setSeenIds(next);
-      saveSeenNotificationIds(next);
-    }
+  function invalidateNotifications() {
+    queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() });
+  }
+
+  function handleMarkRead(id: number) {
+    markRead.mutate({ id }, { onSuccess: invalidateNotifications });
+  }
+
+  function handleMarkAllRead() {
+    markAllRead.mutate(undefined, { onSuccess: invalidateNotifications });
+  }
+
+  function handleDelete(id: number, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    deleteNotif.mutate({ id }, { onSuccess: invalidateNotifications });
   }
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -267,35 +267,82 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
           
           <div className="flex items-center gap-4">
-            <DropdownMenu onOpenChange={handleNotificationsOpenChange}>
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:bg-secondary/80 transition-colors relative">
                   <Bell size={18} />
-                  {hasUnread && (
-                    <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-accent border-2 border-background"></span>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 rounded-full bg-accent border-2 border-background flex items-center justify-center text-[9px] font-bold text-accent-foreground px-0.5">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {notifications.length === 0 ? (
-                  <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-                    You're all caught up.
-                  </div>
-                ) : (
-                  notifications.map((n) => (
-                    <DropdownMenuItem key={n.id} asChild className="cursor-pointer">
-                      <Link href={n.href} className="flex items-start gap-3 py-2">
-                        <n.icon size={16} className={cn("mt-0.5 shrink-0", n.iconClass)} />
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium leading-tight">{n.title}</span>
-                          <span className="text-xs text-muted-foreground">{n.description}</span>
+              <DropdownMenuContent align="end" className="w-80 max-h-[480px] flex flex-col">
+                <div className="flex items-center justify-between px-3 py-2">
+                  <DropdownMenuLabel className="p-0 text-sm">
+                    Notifications
+                    {unreadCount > 0 && (
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                        {unreadCount} unread
+                      </span>
+                    )}
+                  </DropdownMenuLabel>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={(e) => { e.preventDefault(); handleMarkAllRead(); }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+                <DropdownMenuSeparator className="mt-0" />
+                <div className="overflow-y-auto flex-1">
+                  {notifications.length === 0 ? (
+                    <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+                      You're all caught up.
+                    </div>
+                  ) : (
+                    notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        className={cn(
+                          "flex items-start gap-3 px-3 py-2.5 cursor-pointer hover:bg-secondary/50 transition-colors group",
+                          !n.isRead && "bg-accent/5"
+                        )}
+                        onClick={() => {
+                          if (!n.isRead) handleMarkRead(n.id);
+                          if (n.href) setLocation(n.href);
+                        }}
+                      >
+                        {!n.isRead && (
+                          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                        )}
+                        {n.isRead && <span className="mt-1.5 w-1.5 h-1.5 shrink-0" />}
+                        <NotifIcon type={n.type} />
+                        <div className="flex-1 min-w-0">
+                          <p className={cn("text-sm leading-tight", !n.isRead && "font-medium")}>
+                            {n.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                            {n.message}
+                          </p>
+                          <p className="text-xs text-muted-foreground/60 mt-0.5">
+                            {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+                          </p>
                         </div>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))
-                )}
+                        <button
+                          onClick={(e) => handleDelete(n.id, e)}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-secondary text-muted-foreground hover:text-foreground transition-all shrink-0"
+                          title="Dismiss"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
 

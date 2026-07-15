@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, ilike, and, sql } from "drizzle-orm";
 import { db, projectsTable, clientsTable, activityTable } from "@workspace/db";
+import { createNotification } from "../lib/createNotification";
 import {
   ListProjectsQueryParams,
   CreateProjectBody,
@@ -82,6 +83,16 @@ router.post("/projects", async (req, res): Promise<void> => {
     entityId: project.id,
     description: `Project "${project.name}" created`,
     clientId: project.clientId,
+  });
+
+  // Notification
+  void createNotification({
+    type: "project_created",
+    title: "New project created",
+    message: `Project "${project.name}" has been created${client ? ` for ${client.companyName}` : ""}.`,
+    entityType: "project",
+    entityId: project.id,
+    href: `/projects/${project.id}`,
   });
 
   res.status(201).json(mapProject(project, client?.companyName ?? null));
@@ -169,6 +180,18 @@ router.patch("/projects/:id", async (req, res): Promise<void> => {
     description: `Project "${project.name}" updated`,
     clientId: project.clientId,
   });
+
+  // Notification only when status explicitly changed
+  if (parsed.data.status) {
+    void createNotification({
+      type: "project_status_changed",
+      title: "Project status updated",
+      message: `"${project.name}" status changed to ${project.status}.`,
+      entityType: "project",
+      entityId: project.id,
+      href: `/projects/${project.id}`,
+    });
+  }
 
   res.json(mapProject(project, client?.companyName ?? null));
 });
