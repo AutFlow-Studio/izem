@@ -1,0 +1,489 @@
+[7/14/2026 6:20 PM] هُود: You are a world-class Staff Software Engineer, SaaS Architect, Product Manager, Security Auditor, Technical Writer, and Systems Analyst.
+
+I am going to provide you with the COMPLETE source code of a software project.
+
+Your task is NOT to summarize it superficially.
+
+I want you to reverse-engineer the entire application as if you had to understand it before acquiring the company.
+
+Do not skip anything.
+
+Do not make assumptions that are not supported by the code.
+
+Whenever something is uncertain, explicitly state that it is uncertain.
+
+------------------------------------------------------------
+YOUR GOAL
+------------------------------------------------------------
+
+Produce the most complete technical and product documentation possible.
+
+After reading your report, someone who has NEVER seen this project or its code should fully understand:
+
+- What the product is
+- Who it is for
+- What problem it solves
+- Every feature
+- Every workflow
+- Every page
+- Every API
+- Every database model
+- Every business rule
+- Every user flow
+- Every technical decision
+- Every limitation
+
+The report should be detailed enough that another engineering team could continue development without reading the code first.
+
+------------------------------------------------------------
+ANALYZE EVERYTHING
+------------------------------------------------------------
+
+# 1. Executive Summary
+
+Explain:
+
+- What this product is
+- The business idea
+- Target users
+- Target industry
+- Core value proposition
+- Product maturity
+- Overall architecture
+
+------------------------------------------------------------
+
+# 2. Product Overview
+
+Explain every feature in plain English.
+
+For each feature include:
+
+- purpose
+- why it exists
+- who uses it
+- business value
+- technical implementation
+
+------------------------------------------------------------
+
+# 3. Complete User Journey
+
+Describe every possible workflow from beginning to end.
+
+For every user type explain:
+
+What they see
+
+↓
+
+What they click
+
+↓
+
+What happens
+
+↓
+
+Backend operations
+
+↓
+
+Database changes
+
+↓
+
+Final result
+
+Cover every possible path.
+
+------------------------------------------------------------
+
+# 4. Screens / Pages
+
+List every screen.
+
+For every page explain:
+
+- URL/Route
+- Components
+- Inputs
+- Outputs
+- Buttons
+- Actions
+- Validation
+- API calls
+- Database interactions
+
+------------------------------------------------------------
+
+# 5. User Roles
+
+Identify every role.
+
+Explain:
+
+Permissions
+
+Restrictions
+
+Capabilities
+
+Authentication
+
+Authorization
+
+------------------------------------------------------------
+
+# 6. Database
+
+Reverse engineer the complete database.
+
+For every table include:
+
+Purpose
+
+Columns
+
+Relationships
+
+Indexes
+
+Constraints
+
+Primary Keys
+
+Foreign Keys
+
+Business meaning
+
+Explain why each table exists.
+
+------------------------------------------------------------
+
+# 7. APIs
+
+List every endpoint.
+
+For each endpoint explain:
+
+Method
+
+Route
+
+Purpose
+
+Authentication
+
+Input
+
+Output
+
+Validation
+
+Errors
+
+Database operations
+
+Business logic
+
+------------------------------------------------------------
+
+# 8. Backend Architecture
+
+Explain:
+
+Folder structure
+
+Application layers
+
+Architecture style
+
+Patterns used
+
+Dependency flow
+
+Validation
+
+Error handling
+
+Authentication
+
+Sessions
+
+Middleware
+
+Transactions
+
+Logging
+
+------------------------------------------------------------
+
+# 9. Frontend Architecture
+
+Explain:
+
+Pages
+
+Components
+
+State management
+
+Forms
+
+Validation
+
+Navigation
+
+API communication
+
+Error states
+
+Loading states
+
+------------------------------------------------------------
+
+# 10. Business Logic
+
+Explain every important business rule.
+
+Examples:
+
+status transitions
+
+permissions
+
+validation rules
+
+appointment rules
+
+approval flow
+
+edge cases
+
+constraints
+
+hidden logic
+
+------------------------------------------------------------
+
+# 11. Security Review
+
+Analyze:
+
+Authentication
+
+Authorization
+
+Password handling
+
+Session management
+
+Input validation
+
+SQL Injection protection
+
+XSS protection
+
+CSRF
+
+Secrets
+
+Environment variables
+
+Rate limiting
+
+File upload security
+[7/14/2026 6:20 PM] هُود: Potential vulnerabilities
+
+Risk level
+
+Recommendations
+
+------------------------------------------------------------
+
+# 12. Code Quality Review
+
+Evaluate:
+
+Architecture
+
+Readability
+
+Maintainability
+
+Scalability
+
+Modularity
+
+Reusability
+
+Naming
+
+Complexity
+
+Code smells
+
+Technical debt
+
+Rate each area from 1–10.
+
+------------------------------------------------------------
+
+# 13. Missing Features
+
+List everything that would be needed before shipping to real paying customers.
+
+Separate into:
+
+Critical
+
+Important
+
+Nice-to-have
+
+------------------------------------------------------------
+
+# 14. Scalability
+
+Can this become:
+
+100 users?
+
+1,000 users?
+
+10,000 users?
+
+100,000 users?
+
+Explain bottlenecks.
+
+------------------------------------------------------------
+
+# 15. Deployment
+
+Explain:
+
+Required services
+
+Environment variables
+
+Database
+
+Hosting
+
+Production checklist
+
+------------------------------------------------------------
+
+# 16. Product Roadmap
+
+Recommend:
+
+Version 1.1
+
+Version 2
+
+Version 3
+
+Enterprise version
+
+Explain why each feature should be added.
+
+------------------------------------------------------------
+
+# 17. Competitive Analysis
+
+Based ONLY on what exists in the code:
+
+Identify competing products.
+
+Compare strengths.
+
+Compare weaknesses.
+
+Explain positioning.
+
+------------------------------------------------------------
+
+# 18. Technical Complexity
+
+Estimate:
+
+Junior developer effort
+
+Mid-level effort
+
+Senior effort
+
+Estimated development time
+
+Difficulty score
+
+------------------------------------------------------------
+
+# 19. Business Evaluation
+
+Evaluate:
+
+Market potential
+
+Pricing potential
+
+Who would buy it
+
+Who would not
+
+Business strengths
+
+Business weaknesses
+
+Monetization ideas
+
+------------------------------------------------------------
+
+# 20. Final Verdict
+
+Give a brutally honest assessment.
+
+Answer:
+
+What is this project really?
+
+How complete is it?
+
+Is it MVP?
+
+Beta?
+
+Production-ready?
+
+Would you invest in it?
+
+Would you buy it?
+
+What are its biggest strengths?
+
+What are its biggest weaknesses?
+
+------------------------------------------------------------
+
+IMPORTANT RULES
+
+- Read the ENTIRE project before writing anything.
+- Do not skip folders.
+- Do not ignore configuration files.
+- Analyze every important file.
+- Infer architecture only from evidence.
+- Distinguish facts from assumptions.
+- Never hallucinate.
+- Explain technical concepts in simple language whenever possible.
+- Be extremely detailed.
+- Use diagrams (ASCII if needed).
+- Include flowcharts when useful.
+- Include tables wherever they improve clarity.
+- Quote filenames and explain their purpose.
+- Cross-reference related files.
+- Think like someone performing technical due diligence before buying a software company.
+
+The final report should be comprehensive enough that someone who has never seen the project can fully understand every important technical, business, and architectural aspect without reading the source code.

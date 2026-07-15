@@ -6,3 +6,9 @@ id = "MWPPpoZhQ02MdLi9hhCfH"
 uri = "file://TECHNICAL_AUDIT_REPORT.md"
 type = "text"
 title = "AutFlow Studio — Complete Technical & Product Audit"
+
+[[outputs]]
+id = "u3HOf4ZgXJR69eLvReIeK"
+uri = "file://AutFlow-Studio-Technical-Report.md"
+type = "text"
+title = "AutFlow Studio — Complete Technical & Product Report"
